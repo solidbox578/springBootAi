@@ -1,4 +1,4 @@
-package pojo;
+package com.vibhu.openai.pojo;
 
 import java.util.List;
 
