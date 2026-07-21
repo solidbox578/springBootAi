@@ -8,6 +8,7 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryRepository;
 import org.springframework.ai.ollama.OllamaChatModel;
+import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,11 +29,11 @@ public class ChatMemoryClientConfig {
 
     @Bean
     @Qualifier("chatMemoryChatClient")
-    public ChatClient chatMemoryChatClient(OllamaChatModel ollamaChatModel, ChatMemory chatMemory) {
+    public ChatClient chatMemoryChatClient(OpenAiChatModel openAiChatModel, ChatMemory chatMemory) {
         Advisor simpleLoggerAdvisor = new SimpleLoggerAdvisor();
         Advisor memoryChatAdvisor = MessageChatMemoryAdvisor.builder(chatMemory).build();
         //MessageChatMemoryAdvisor --> ChatMemory (MessageWindowChatMemory) --> ChatRepository (InMemoryChatMemoryRepository)
-        return ChatClient.builder(ollamaChatModel)
+        return ChatClient.builder(openAiChatModel)
                 .defaultAdvisors(List.of(simpleLoggerAdvisor, memoryChatAdvisor))
                 .build();
     }
