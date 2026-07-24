@@ -25,6 +25,9 @@ public class RAGController {
     @Value("classpath:/promptTemplates/systemPromptRandomDataTemplate.st")
     Resource promptTemplatesResource;
 
+    @Value("classpath:/promptTemplates/systemPromptTemplate.st")
+    Resource systemPromptTemplatesResource;
+
     public RAGController(@Qualifier("chatMemoryChatClient") ChatClient chatClient, VectorStore vectorStore) {
         this.chatClient = chatClient;
         this.vectorStore = vectorStore;
@@ -34,17 +37,29 @@ public class RAGController {
     public ResponseEntity<String> randomChat(@RequestHeader("userName") String userName, @RequestParam("message") String message) {
         String conversationId = (userName != null && !userName.isEmpty()) ? userName : "default";
 
-        SearchRequest searchRequest = SearchRequest.builder().query(message).topK(3).similarityThreshold(0.5).build();
+        /*WITH RetrievalAugmentationAdvisor this commented code is not needed. This Advisor will take care of the retrieval*/
+       /* SearchRequest searchRequest = SearchRequest.builder().query(message).topK(3).similarityThreshold(0.5).build();
         List<Document> similarDocs = vectorStore.similaritySearch(searchRequest);
-        String similarContext = similarDocs.stream().map(Document::getText).collect(Collectors.joining(System.lineSeparator()));
+        String similarContext = similarDocs.stream().map(Document::getText).collect(Collectors.joining(System.lineSeparator()));*/
         String ragAnswer = chatClient.prompt()
-                    .system(
+                   /* .system(
                     promptSystemSpec -> promptSystemSpec.text(promptTemplatesResource)
-                            .param("documents", similarContext))
+                            .param("documents", similarContext))*/
                     .advisors(advisorSpec -> advisorSpec.param(CONVERSATION_ID, conversationId))
                     .user(message)
                     .call().content();
 
+        return ResponseEntity.ok(ragAnswer);
+    }
+
+    @GetMapping("/document/chat")
+    public ResponseEntity<String> documentChat(@RequestHeader("userName") String userName, @RequestParam("message") String message) {
+        String conversationId = (userName != null && !userName.isEmpty()) ? userName : "default";
+
+        String ragAnswer = chatClient.prompt()
+                .advisors(advisorSpec -> advisorSpec.param(CONVERSATION_ID, conversationId))
+                .user(message)
+                .call().content();
         return ResponseEntity.ok(ragAnswer);
     }
 
