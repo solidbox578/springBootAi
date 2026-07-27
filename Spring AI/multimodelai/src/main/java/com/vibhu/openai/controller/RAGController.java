@@ -22,14 +22,18 @@ public class RAGController {
     private final ChatClient chatClient;
     private final VectorStore vectorStore;
 
+    private final ChatClient webSearchChatClient;
+
     @Value("classpath:/promptTemplates/systemPromptRandomDataTemplate.st")
     Resource promptTemplatesResource;
 
     @Value("classpath:/promptTemplates/systemPromptTemplate.st")
     Resource systemPromptTemplatesResource;
 
-    public RAGController(@Qualifier("chatMemoryChatClient") ChatClient chatClient, VectorStore vectorStore) {
+    public RAGController(@Qualifier("chatMemoryChatClient") ChatClient chatClient,
+                         @Qualifier("webSearchRAGChatClient") ChatClient webSearchChatClient,  VectorStore vectorStore) {
         this.chatClient = chatClient;
+        this.webSearchChatClient = webSearchChatClient;
         this.vectorStore = vectorStore;
     }
 
@@ -57,6 +61,16 @@ public class RAGController {
         String conversationId = (userName != null && !userName.isEmpty()) ? userName : "default";
 
         String ragAnswer = chatClient.prompt()
+                .advisors(advisorSpec -> advisorSpec.param(CONVERSATION_ID, conversationId))
+                .user(message)
+                .call().content();
+        return ResponseEntity.ok(ragAnswer);
+    }
+
+    @GetMapping("/web-search/chat")
+    public ResponseEntity<String> webSearch(@RequestHeader("userName") String userName, @RequestParam("message") String message) {
+        String conversationId = (userName != null && !userName.isEmpty()) ? userName : "default";
+        String ragAnswer = webSearchChatClient.prompt()
                 .advisors(advisorSpec -> advisorSpec.param(CONVERSATION_ID, conversationId))
                 .user(message)
                 .call().content();
