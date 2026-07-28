@@ -1,6 +1,7 @@
 package com.vibhu.openai.config;
 
 import com.vibhu.openai.rag.PIIMaskingDocumentPostProcessor;
+import org.springframework.ai.chat.cache.semantic.SemanticCacheAdvisor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -34,12 +35,13 @@ public class ChatMemoryChatClientConfig {
     @Bean
     @Qualifier("chatMemoryChatClient")
     public ChatClient chatMemoryChatClient(OpenAiChatModel openAiChatModel, ChatMemory chatMemory,
-                                           RetrievalAugmentationAdvisor retrievalAugmentationAdvisor) {
+                                           RetrievalAugmentationAdvisor retrievalAugmentationAdvisor,
+                                           @Qualifier("semanticRedisCacheAdvisor") SemanticCacheAdvisor  semanticCacheAdvisor) {
         Advisor simpleLoggerAdvisor = new SimpleLoggerAdvisor();
         Advisor memoryChatAdvisor = MessageChatMemoryAdvisor.builder(chatMemory).build();
         //MessageChatMemoryAdvisor --> ChatMemory (MessageWindowChatMemory) --> ChatRepository (InMemoryChatMemoryRepository or JdbcChatMemoryRepository)
         return ChatClient.builder(openAiChatModel)
-                .defaultAdvisors(List.of(simpleLoggerAdvisor, memoryChatAdvisor, retrievalAugmentationAdvisor))
+                .defaultAdvisors(List.of(simpleLoggerAdvisor, memoryChatAdvisor, retrievalAugmentationAdvisor, semanticCacheAdvisor))
                 .build();
     }
 
