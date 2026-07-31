@@ -36,11 +36,10 @@ public class ChatMemoryChatClientConfig {
     public ChatClient chatMemoryChatClient(ChatClient.Builder chatClientBuilder, ChatMemory chatMemory,
                                            RetrievalAugmentationAdvisor retrievalAugmentationAdvisor,
                                            @Qualifier("semanticRedisCacheAdvisor") SemanticCacheAdvisor  semanticCacheAdvisor) {
-        Advisor simpleLoggerAdvisor = new SimpleLoggerAdvisor();
         Advisor memoryChatAdvisor = MessageChatMemoryAdvisor.builder(chatMemory).build();
         //MessageChatMemoryAdvisor --> ChatMemory (MessageWindowChatMemory) --> ChatRepository (InMemoryChatMemoryRepository or JdbcChatMemoryRepository)
         return chatClientBuilder
-                .defaultAdvisors(List.of(simpleLoggerAdvisor, memoryChatAdvisor, retrievalAugmentationAdvisor, semanticCacheAdvisor))
+                .defaultAdvisors(List.of(memoryChatAdvisor, retrievalAugmentationAdvisor, semanticCacheAdvisor))
                 .build();
     }
 

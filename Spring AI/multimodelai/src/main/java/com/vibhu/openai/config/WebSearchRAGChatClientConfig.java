@@ -12,13 +12,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
 
+import java.util.List;
+
 @Configuration
 public class WebSearchRAGChatClientConfig {
 
     @Bean("webSearchRAGChatClient")
     public ChatClient chatClient(ChatClient.Builder chatClientBuilder, ChatMemory chatMemory, RestClient.Builder restClientBuilder) {
-        Advisor loggerAdvisor = new SimpleLoggerAdvisor();
-        Advisor tokenUsageAdvisor = new TokenUsageAuditAdvisor();
         Advisor memoryAdvisor = MessageChatMemoryAdvisor.builder(chatMemory).build();
 
         var webSearchRAGAdvisor = RetrievalAugmentationAdvisor.builder()
@@ -29,7 +29,7 @@ public class WebSearchRAGChatClientConfig {
                 .build();
 
         return chatClientBuilder
-                .defaultAdvisors(loggerAdvisor, tokenUsageAdvisor, memoryAdvisor, webSearchRAGAdvisor)
+                .defaultAdvisors(List.of(memoryAdvisor, webSearchRAGAdvisor))
                 .build();
     }
 

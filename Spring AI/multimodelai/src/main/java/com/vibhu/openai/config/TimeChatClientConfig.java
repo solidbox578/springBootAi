@@ -19,13 +19,11 @@ public class TimeChatClientConfig {
 
     @Bean("timeChatClient")
     public ChatClient timeChatClient(ChatClient.Builder chatClientBuilder, ChatMemory chatMemory, TimeTools timeTools) {
-        Advisor loggerAdvisor = new SimpleLoggerAdvisor();
-        Advisor tokenUsageAdvisor = new TokenUsageAuditAdvisor();
         Advisor memoryAdvisor = MessageChatMemoryAdvisor.builder(chatMemory).build();
 
         return chatClientBuilder
                 .defaultTools(timeTools)
-                .defaultAdvisors(List.of(loggerAdvisor, tokenUsageAdvisor, memoryAdvisor))
+                .defaultAdvisors(List.of(memoryAdvisor))
                 .build();
     }
 

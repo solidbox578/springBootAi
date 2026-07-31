@@ -15,7 +15,7 @@ public class OpenChatClientConfig {
     @Bean("openChatClient")
     public ChatClient openChatClient(ChatClient.Builder chatClientBuilder, SemanticCacheAdvisor semanticCacheAdvisor) {
         return chatClientBuilder
-                .defaultAdvisors(List.of(new SimpleLoggerAdvisor(), new TokenUsageAuditAdvisor(), semanticCacheAdvisor))
+                .defaultAdvisors(List.of(semanticCacheAdvisor))
                 .build();
     }
 
