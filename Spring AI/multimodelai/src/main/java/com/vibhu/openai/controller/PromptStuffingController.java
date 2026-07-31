@@ -13,18 +13,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/ai")
 public class PromptStuffingController {
 
-    private final ChatClient ollamaChatClient;
+    private final ChatClient chatClient;
 
     @Value("classpath:/promptTemplates/promptStuffingTemplate.st")
     Resource promptStuffingTemplate;
 
-    public PromptStuffingController(@Qualifier("ollamaChatClient") ChatClient ollamaChatClient) {
-        this.ollamaChatClient = ollamaChatClient;
+    public PromptStuffingController(@Qualifier("chatClient") ChatClient chatClient) {
+        this.chatClient = chatClient;
     }
 
     @GetMapping("/prompt-stuffing/chat")
     public String promptStuffing(@RequestParam String message) {
-        return ollamaChatClient.prompt()
+        return chatClient.prompt()
                 .system(promptSystemSpec ->
                         promptSystemSpec.text(promptStuffingTemplate))
                 .user(message)

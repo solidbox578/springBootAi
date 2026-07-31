@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/ai")
 public class PromptTemplateController {
 
-    private final ChatClient ollamaChatClient;
+    private final ChatClient chatClient;
 
     @Value("classpath:/promptTemplates/userPromptTemplate.st")
     Resource userPromptTemplate;
@@ -21,13 +21,13 @@ public class PromptTemplateController {
     @Value("classpath:/promptTemplates/promptStuffingTemplate.st")
     Resource systemPromptTemplate;
 
-    public PromptTemplateController(@Qualifier("ollamaChatClient") ChatClient ollamaChatClient) {
-        this.ollamaChatClient = ollamaChatClient;
+    public PromptTemplateController(@Qualifier("chatClient") ChatClient chatClient) {
+        this.chatClient = chatClient;
     }
 
     @GetMapping("/userTemplate/chat")
     public String userPromptTemplate(@RequestParam("customerName") String customerName, @RequestParam("customerIssue") String customerIssue) {
-        return ollamaChatClient.prompt()
+        return chatClient.prompt()
                 .system(promptSystemSpec ->
                         promptSystemSpec.text(systemPromptTemplate))
                 .user(promptUserSpec ->
@@ -40,7 +40,7 @@ public class PromptTemplateController {
 
     @GetMapping("/systemTemplate/chat")
     public String systemPromptTemplate(@RequestParam String message) {
-        return ollamaChatClient.prompt()
+        return chatClient.prompt()
                 .system(promptSystemSpec ->
                         promptSystemSpec.text(systemPromptTemplate))
                 .user(message)

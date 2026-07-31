@@ -36,6 +36,7 @@ public class SemanticCacheConfig {
 
     /*Given below bean configuration is for Qdrant based Semantic Cache. Since we're already using Qdrant for RAG vector db,
     we don't need to separate cache infrastructure */
+    //TODO qdrant based sematic cache not working, as each call adding new record to the cache for same input input prompt
     @Bean("cacheVectorStore")
     VectorStore cacheVectorStore(QdrantClient  qdrantClient, EmbeddingModel embeddingModel) {
         return QdrantVectorStore.builder(qdrantClient, embeddingModel)

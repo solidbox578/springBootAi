@@ -25,15 +25,15 @@ public class StructuredOutputController {
 
     private static final Logger LOG = LoggerFactory.getLogger(StructuredOutputController.class);
 
-    private final ChatClient ollamaChatClient;
+    private final ChatClient chatClient;
 
-    public StructuredOutputController(@Qualifier("ollamaChatClient") ChatClient ollamaChatClient) {
-        this.ollamaChatClient = ollamaChatClient;
+    public StructuredOutputController(@Qualifier("chatClient") ChatClient chatClient) {
+        this.chatClient = chatClient;
     }
 
     @GetMapping("/chat-bean")
     public ResponseEntity<CountryCity> sendMessageGetBean(@RequestParam String message){
-        CountryCity countryCity = ollamaChatClient.prompt().user(message)
+        CountryCity countryCity = chatClient.prompt().user(message)
                 .call().entity(CountryCity.class);
         LOG.info("Received structured Pojo output Using Bean: {}", countryCity);
         return ResponseEntity.ok(countryCity);
@@ -41,7 +41,7 @@ public class StructuredOutputController {
 
     @GetMapping("/chat-bean-converter")
     public ResponseEntity<CountryCity> sendMessageGetBeanUsingConverter(@RequestParam String message){
-        CountryCity countryCity = ollamaChatClient.prompt().user(message)
+        CountryCity countryCity = chatClient.prompt().user(message)
                 .call().entity(new BeanOutputConverter<>(CountryCity.class));
         LOG.info("Received structured Pojo output Using BeanOutputConverter: {}", countryCity);
         return ResponseEntity.ok(countryCity);
@@ -49,7 +49,7 @@ public class StructuredOutputController {
 
     @GetMapping("/chat-list")
     public ResponseEntity<List<String>> sendMessageGetList(@RequestParam String message){
-        List<String> countryCityList = ollamaChatClient.prompt().user(message)
+        List<String> countryCityList = chatClient.prompt().user(message)
                 .call().entity(new ListOutputConverter());
         LOG.info("Received structured List output using ListOutputConverter: {}", countryCityList);
         return ResponseEntity.ok(countryCityList);
@@ -57,7 +57,7 @@ public class StructuredOutputController {
 
     @GetMapping("/chat-map")
     public ResponseEntity<Map<String, Object>> sendMessageGetMap(@RequestParam String message){
-        Map<String, Object> countryCityMap = ollamaChatClient.prompt().user(message)
+        Map<String, Object> countryCityMap = chatClient.prompt().user(message)
                 .call().entity(new MapOutputConverter());
         LOG.info("Received structured Map output using MapOutputConverter: {}", countryCityMap);
         return ResponseEntity.ok(countryCityMap);
@@ -65,7 +65,7 @@ public class StructuredOutputController {
 
     @GetMapping("/chat-pojo-list")
     public ResponseEntity<List<CountryCity>> sendMessageGetPojoList(@RequestParam String message){
-        List<CountryCity> countryCityList = ollamaChatClient.prompt().user(message)
+        List<CountryCity> countryCityList = chatClient.prompt().user(message)
                 .call().entity(new ParameterizedTypeReference<List<CountryCity>>() {
                 });
         LOG.info("Received structured List of Pojo output using ParameterizedTypeReference: {}", countryCityList);

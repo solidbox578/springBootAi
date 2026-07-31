@@ -1,29 +1,21 @@
-package com.vibhu.openai.config;
+package com.vibhu.openai.config.modelWiseChatClient;
 
 import com.vibhu.openai.config.advisor.TokenUsageAuditAdvisor;
-import org.springframework.ai.anthropic.AnthropicChatModel;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
-import org.springframework.ai.ollama.OllamaChatModel;
-import org.springframework.ai.openai.OpenAiChatModel;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
 @Configuration
-public class ChatClientConfig {
+public class OllamaChatClientConfig {
 
     /**
-     * One way to create ChatClient instance - using .create()
-     * this Spring AI is OPENAI compatible & running on local with "Docker Model Runner" with gemma 3 model
-     * @param openAiChatModel
+     * In order to use OllmaChatModel or AnthropicChatModel Or OpenAiChatModel.
+     *  spring.ai.chat.client.enabled=false , need to make it as false, So chat Spring will not inject ChactClient.Builder automatically
+     *  based on given one chatmodel starter dependencies
      */
-    @Bean
-    public ChatClient openAIChatClient(OpenAiChatModel openAiChatModel) {
-        return ChatClient.create(openAiChatModel);
-    }
 
     /**
      * Another way to create ChatClient instance - using .builder().build()
@@ -31,17 +23,17 @@ public class ChatClientConfig {
      * @param ollamaChatModel
      * @return
      */
-    @Bean
+   /* @Bean
     public ChatClient ollamaChatClient(OllamaChatModel ollamaChatModel) {
         return ChatClient.builder(ollamaChatModel).build();
-    }
+    }*/
 
     /**
      * DefaultUser, DefaultSystem, DefaultAssistant roles are used in this Spring AI
      * @param ollamaChatModel
      * @return
      */
-    @Bean
+   /* @Bean
     public ChatClient ollmaDefaultSystemChatClient(OllamaChatModel ollamaChatModel) {
         return ChatClient
                 .builder(ollamaChatModel)
@@ -52,17 +44,17 @@ public class ChatClientConfig {
                     Kindly inform them that you can only assist with queries related to HR and company policies. \s
                     """)
                 .build();
-        /*
+        *//*
          * Similar DefaultUser, DefaultAssistance etc. can be used as part of bean config
-         */
-    }
+         *//*
+    }*/
 
     /**
      * DefaultAdvior Built-in and Custome Advisor
      * @param ollamaChatModel
      * @return
      */
-    @Bean
+   /* @Bean
     public ChatClient ollmaDefaultAdvisorsChatClient(OllamaChatModel ollamaChatModel) {
         return ChatClient
                 .builder(ollamaChatModel)
@@ -75,15 +67,6 @@ public class ChatClientConfig {
                     Kindly inform them that you can only assist with queries related to HR and company policies. \s
                     """)
                 .build();
-    }
+    }*/
 
-    /**
-     * This Spring AI is configured to use ANTHROPIC model with Claude-v1.3 model by using API key
-     * @param anthropicChatModel
-     * @return
-     */
-    @Bean
-    public ChatClient anthropicChatClient(AnthropicChatModel anthropicChatModel) {
-        return ChatClient.builder(anthropicChatModel).build();
-    }
 }

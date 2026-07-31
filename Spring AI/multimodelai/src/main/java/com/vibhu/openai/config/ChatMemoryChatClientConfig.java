@@ -9,7 +9,6 @@ import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryRepository;
-import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.rag.preretrieval.query.transformation.TranslationQueryTransformer;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
@@ -34,13 +33,13 @@ public class ChatMemoryChatClientConfig {
 
     @Bean
     @Qualifier("chatMemoryChatClient")
-    public ChatClient chatMemoryChatClient(OpenAiChatModel openAiChatModel, ChatMemory chatMemory,
+    public ChatClient chatMemoryChatClient(ChatClient.Builder chatClientBuilder, ChatMemory chatMemory,
                                            RetrievalAugmentationAdvisor retrievalAugmentationAdvisor,
                                            @Qualifier("semanticRedisCacheAdvisor") SemanticCacheAdvisor  semanticCacheAdvisor) {
         Advisor simpleLoggerAdvisor = new SimpleLoggerAdvisor();
         Advisor memoryChatAdvisor = MessageChatMemoryAdvisor.builder(chatMemory).build();
         //MessageChatMemoryAdvisor --> ChatMemory (MessageWindowChatMemory) --> ChatRepository (InMemoryChatMemoryRepository or JdbcChatMemoryRepository)
-        return ChatClient.builder(openAiChatModel)
+        return chatClientBuilder
                 .defaultAdvisors(List.of(simpleLoggerAdvisor, memoryChatAdvisor, retrievalAugmentationAdvisor, semanticCacheAdvisor))
                 .build();
     }
@@ -53,10 +52,10 @@ public class ChatMemoryChatClientConfig {
      * @return
      */
     @Bean
-    public RetrievalAugmentationAdvisor retrievalAugmentationAdvisor(VectorStore vectorStore, OpenAiChatModel openAiChatModel) {
+    public RetrievalAugmentationAdvisor retrievalAugmentationAdvisor(VectorStore vectorStore, ChatClient.Builder chatClientBuilder) {
         return RetrievalAugmentationAdvisor.builder()
                 .queryTransformers(TranslationQueryTransformer.builder() //Translation Query Pre-Retrieval
-                        .chatClientBuilder(ChatClient.builder(openAiChatModel).clone()).targetLanguage("english").build())
+                        .chatClientBuilder(chatClientBuilder.clone()).targetLanguage("english").build())
                 .documentRetriever(VectorStoreDocumentRetriever.builder().vectorStore(vectorStore)
                                                                             .topK(3).similarityThreshold(0.5).build())
                 .documentPostProcessors(PIIMaskingDocumentPostProcessor.builder()) // Post Processor
