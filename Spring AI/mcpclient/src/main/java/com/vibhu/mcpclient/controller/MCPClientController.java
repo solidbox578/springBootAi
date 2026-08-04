@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -46,6 +48,7 @@ public class MCPClientController {
     public ResponseEntity<String> chatFilter(@RequestHeader(value = "username", required = false) String username, @RequestParam String message){
         ToolCallback[] toolCallbacks = ToolUtil.selectToolsFor(mcpSyncClients, "helpdesk-mcp-server", null);
         String answer = chatClient.prompt()
+                .toolContext(Map.of("progressToken", UUID.randomUUID().toString())) // Example of passing a progress token to the tools
                 .tools(toolCallbacks)
                 .user(message+"my username is "+username).call().content();
         return ResponseEntity.ok(answer);
