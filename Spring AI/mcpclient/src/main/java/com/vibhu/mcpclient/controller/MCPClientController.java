@@ -53,4 +53,22 @@ public class MCPClientController {
                 .user(message+"my username is "+username).call().content();
         return ResponseEntity.ok(answer);
     }
+
+    @GetMapping("/ticket-summary")
+    public ResponseEntity<String> ticketSummary(@RequestHeader(value = "username", required = false) String username){
+        ToolCallback[] toolCallbacks = ToolUtil.selectToolsFor(mcpSyncClients, "helpdesk-mcp-server", null);
+        String answer = chatClient.prompt()
+                .system("""
+                        You orchestrate the 'summerizeTickets' tool. The tool already returns a complete,
+                        customer-friendly summary that was generated for this exact request. Return the tool
+                        output to the user EXACTLY as it is returned from the tool. Do not add any additional information or context.
+                        Your reply must be the verbatim tool response and nothing else.
+                        """)
+                .user("Please provide a summary of all open tickets for my username: "+username)
+                .tools(toolCallbacks)
+                .toolContext(Map.of("progressToken", UUID.randomUUID().toString())) // Example of passing a progress token to the tools
+                .call().content();
+
+        return ResponseEntity.ok(answer);
+    }
 }
