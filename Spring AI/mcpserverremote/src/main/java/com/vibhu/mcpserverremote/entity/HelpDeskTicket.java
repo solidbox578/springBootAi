@@ -25,6 +25,10 @@ public class HelpDeskTicket {
 
     private String status;
 
+    private String priority;
+
+    private String contactPhone;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime eta;
